@@ -17,7 +17,10 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include  
 
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('app/', include('app.urls')),  # Incluye las URLs de la aplicación 'app'
+    path('scrud/', include('scrud.urls')),
+    path('login/', include('login.urls')),
 ]
