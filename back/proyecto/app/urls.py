@@ -1,0 +1,7 @@
+from django.contrib import admin
+from django.urls import path
+from .views import UsuarioRegistroView
+
+urlpatterns = [
+    path('registro/', UsuarioRegistroView.as_view(), name='registro'),
+]

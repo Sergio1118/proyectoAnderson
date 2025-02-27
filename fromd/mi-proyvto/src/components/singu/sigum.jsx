@@ -1,159 +1,134 @@
-// 1. Importa React y el hook `useState` desde la librería 'react'.
 import React, { useState } from 'react';
 
-// 2. Define un componente funcional llamado `Registro`.
 const Registro = () => {
-  // 3. Define el estado `formData` usando el hook `useState`.
-  //    Este estado almacena los valores de los campos del formulario.
+  // Estado inicial con los nuevos nombres de campos
   const [formData, setFormData] = useState({
-    nombreUsuario: '',       // Campo para el nombre de usuario.
-    correoElectronico: '',   // Campo para el correo electrónico.
-    contrasena: '',          // Campo para la contraseña.
-    confirmacionContrasena: '', // Campo para confirmar la contraseña.
+    username: '',       // Cambiado de nombreUsuario a username
+    email: '',          // Cambiado de correoElectronico a email
+    password: '',       // Cambiado de contrasena a password
+ 
   });
 
-  // 4. Define el estado `errors` usando el hook `useState`.
-  //    Este estado almacena los mensajes de error de validación.
+  // Estado para los errores
   const [errors, setErrors] = useState({});
 
-  // 5. Define la función `handleChange` para manejar cambios en los campos del formulario.
+  // Función para manejar cambios en los campos del formulario
   const handleChange = (e) => {
-    // 6. Extrae el `name` y `value` del campo que ha cambiado.
     const { name, value } = e.target;
-
-    // 7. Actualiza el estado `formData` con el nuevo valor del campo.
-    //    Usa el operador de propagación (`...`) para mantener los otros valores.
     setFormData({ ...formData, [name]: value });
   };
 
-  // 8. Define la función `validateForm` para validar los campos del formulario.
+  // Función para validar el formulario
   const validateForm = () => {
-    // 9. Crea un objeto vacío `newErrors` para almacenar los errores de validación.
     const newErrors = {};
 
-    // 10. Valida el campo `nombreUsuario`.
-    if (!formData.nombreUsuario) {
-      newErrors.nombreUsuario = 'El nombre de usuario es requerido';
+    // Validación del campo username
+    if (!formData.username) {
+      newErrors.username = 'El nombre de usuario es requerido';
     }
 
-    // 11. Valida el campo `correoElectronico`.
-    if (!formData.correoElectronico) {
-      newErrors.correoElectronico = 'El correo electrónico es requerido';
-    } else if (!/\S+@\S+\.\S+/.test(formData.correoElectronico)) {
-      // 12. Valida que el correo electrónico tenga un formato válido.
-      newErrors.correoElectronico = 'El correo electrónico no es válido';
+    // Validación del campo email
+    if (!formData.email) {
+      newErrors.email = 'El correo electrónico es requerido';
+    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
+      newErrors.email = 'El correo electrónico no es válido';
     }
 
-    // 13. Valida el campo `contrasena`.
-    if (!formData.contrasena) {
-      newErrors.contrasena = 'La contraseña es requerida';
-    } else if (formData.contrasena.length < 6) {
-      // 14. Valida que la contraseña tenga al menos 6 caracteres.
-      newErrors.contrasena = 'La contraseña debe tener al menos 6 caracteres';
+    // Validación del campo password
+    if (!formData.password) {
+      newErrors.password = 'La contraseña es requerida';
+    } else if (formData.password.length < 6) {
+      newErrors.password = 'La contraseña debe tener al menos 6 caracteres';
     }
 
-    // 15. Valida el campo `confirmacionContrasena`.
-    if (!formData.confirmacionContrasena) {
-      newErrors.confirmacionContrasena = 'La confirmación de contraseña es requerida';
-    } else if (formData.confirmacionContrasena !== formData.contrasena) {
-      // 16. Valida que la confirmación de contraseña coincida con la contraseña.
-      newErrors.confirmacionContrasena = 'Las contraseñas no coinciden';
-    }
 
-    // 17. Actualiza el estado `errors` con los errores encontrados.
+
     setErrors(newErrors);
-
-    // 18. Retorna `true` si no hay errores, o `false` si hay errores.
     return Object.keys(newErrors).length === 0;
   };
 
-  // 19. Define la función `handleSubmit` para manejar el envío del formulario.
-  const handleSubmit = (e) => {
-    // 20. Previene el comportamiento por defecto del formulario (recargar la página).
+  // Función para manejar el envío del formulario
+  const handleSubmit = async (e) => {
     e.preventDefault();
-
-    // 21. Valida el formulario antes de enviarlo.
     if (validateForm()) {
-      // 22. Si no hay errores, imprime los datos del formulario en la consola.
-      console.log('Formulario enviado:', formData);
+      try {
+        // Enviar los datos al backend Django
+        const response = await fetch('http://localhost:8000/app/registro/', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(formData), // Datos del formulario
+        });
+
+        const data = await response.json();
+        
+        if (response.ok) {
+          window.location.href = '/login';
+        } else {
+          console.log('Errores en el formulario:', data);
+          setErrors(data); // Mostrar los errores que vienen desde el backend
+        }
+      } catch (error) {
+        console.error('Error en la solicitud:', error);
+      }
     } else {
-      // 23. Si hay errores, imprime un mensaje en la consola.
       console.log('Formulario con errores');
     }
   };
 
-  // 24. Retorna el JSX que representa el formulario.
   return (
     <div style={styles.formContainer}>
-      {/* 25. Define el formulario y asocia la función `handleSubmit` al evento `onSubmit`. */}
       <form onSubmit={handleSubmit} style={styles.form}>
-        {/* 26. Título del formulario. */}
         <h2 style={styles.title}>Regístrate</h2>
 
-        {/* 27. Grupo de entrada para el nombre de usuario. */}
+        {/* Campo para el nombre de usuario */}
         <div style={styles.inputGroup}>
           <input
             type="text"
-            name="nombreUsuario"
+            name="username"
             placeholder="Nombre de Usuario"
-            value={formData.nombreUsuario}
+            value={formData.username}
             onChange={handleChange}
             style={styles.input}
           />
-          {/* 28. Muestra el mensaje de error si existe. */}
-          {errors.nombreUsuario && <span style={styles.error}>{errors.nombreUsuario}</span>}
+          {errors.username && <span style={styles.error}>{errors.username}</span>}
         </div>
 
-        {/* 29. Grupo de entrada para el correo electrónico. */}
+        {/* Campo para el correo electrónico */}
         <div style={styles.inputGroup}>
           <input
             type="email"
-            name="correoElectronico"
+            name="email"
             placeholder="Correo Electrónico"
-            value={formData.correoElectronico}
+            value={formData.email}
             onChange={handleChange}
             style={styles.input}
           />
-          {/* 30. Muestra el mensaje de error si existe. */}
-          {errors.correoElectronico && <span style={styles.error}>{errors.correoElectronico}</span>}
+          {errors.email && <span style={styles.error}>{errors.email}</span>}
         </div>
 
-        {/* 31. Grupo de entrada para la contraseña. */}
+        {/* Campo para la contraseña */}
         <div style={styles.inputGroup}>
           <input
             type="password"
-            name="contrasena"
+            name="password"
             placeholder="Contraseña"
-            value={formData.contrasena}
+            value={formData.password}
             onChange={handleChange}
             style={styles.input}
           />
-          {/* 32. Muestra el mensaje de error si existe. */}
-          {errors.contrasena && <span style={styles.error}>{errors.contrasena}</span>}
+          {errors.password && <span style={styles.error}>{errors.password}</span>}
         </div>
 
-        {/* 33. Grupo de entrada para la confirmación de contraseña. */}
-        <div style={styles.inputGroup}>
-          <input
-            type="password"
-            name="confirmacionContrasena"
-            placeholder="Confirmar Contraseña"
-            value={formData.confirmacionContrasena}
-            onChange={handleChange}
-            style={styles.input}
-          />
-          {/* 34. Muestra el mensaje de error si existe. */}
-          {errors.confirmacionContrasena && <span style={styles.error}>{errors.confirmacionContrasena}</span>}
-        </div>
-
-        {/* 35. Botón para enviar el formulario. */}
+        {/* Botón para enviar el formulario */}
         <button type="submit" style={styles.submitButton}>Registrarse</button>
       </form>
     </div>
   );
 };
 
-// 36. Define un objeto `styles` que contiene los estilos CSS-in-JS.
+// Estilos CSS-in-JS
 const styles = {
   formContainer: {
     display: 'flex',
@@ -206,5 +181,4 @@ const styles = {
   },
 };
 
-// 37. Exporta el componente `Registro` como el valor por defecto del módulo.
 export default Registro;
