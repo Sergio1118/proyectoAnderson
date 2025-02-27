@@ -1,5 +1,6 @@
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import Login from "./components/Login/login.jsx";
+import Registro from "./components/singu/sigum.jsx";
 
 function App() {
   
@@ -12,7 +13,7 @@ function App() {
           element={
             <>
               
-              
+              <Registro/>
             </>
           }
         />
